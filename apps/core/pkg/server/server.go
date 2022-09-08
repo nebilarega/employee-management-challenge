@@ -80,6 +80,12 @@ func (s *Server) NewRouter() *gin.Engine {
 		c.String(200, "pong")
 	})
 
+	r.Group("/public")
+	{
+
+		r.Static("/files", "./files")
+	}
+
 	r.GET("/api", playgroundHandler())
 	r.POST("/query", graphqlHandler(s, h))
 

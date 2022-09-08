@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/tensorsystems/employee-management-challenge/apps/core/pkg/graphql/graph/generated"
 	graph_models "github.com/tensorsystems/employee-management-challenge/apps/core/pkg/graphql/graph/model"
 	"github.com/tensorsystems/employee-management-challenge/apps/core/pkg/models"
@@ -15,9 +16,18 @@ import (
 )
 
 // CreateEmployee is the resolver for the createEmployee field.
-func (r *mutationResolver) CreateEmployee(ctx context.Context, input graph_models.CreateEmployeeInput) (*models.Employee, error) {
+func (r *mutationResolver) CreateEmployee(ctx context.Context, input graph_models.CreateEmployeeInput, pic *graphql.Upload) (*models.Employee, error) {
 	var employee models.Employee
 	deepCopy.Copy(&input).To(&employee)
+
+	if pic != nil {
+		err := WriteFile(pic.File, pic.Filename)
+		if err != nil {
+			return nil, err
+		}
+
+		employee.ImageName = &pic.Filename
+	}
 
 	if err := r.EmployeeRepository.Save(&employee); err != nil {
 		return nil, err
@@ -27,9 +37,18 @@ func (r *mutationResolver) CreateEmployee(ctx context.Context, input graph_model
 }
 
 // CreateDepartment is the resolver for the createDepartment field.
-func (r *mutationResolver) CreateDepartment(ctx context.Context, input graph_models.CreateDepartmentInput) (*models.Department, error) {
+func (r *mutationResolver) CreateDepartment(ctx context.Context, input graph_models.CreateDepartmentInput, pic *graphql.Upload) (*models.Department, error) {
 	var department models.Department
 	deepCopy.Copy(&input).To(&department)
+
+	if pic != nil {
+		err := WriteFile(pic.File, pic.Filename)
+		if err != nil {
+			return nil, err
+		}
+
+		department.ImageName = &pic.Filename
+	}
 
 	if err := r.DepartmentRepository.Save(&department); err != nil {
 		return nil, err
@@ -39,9 +58,18 @@ func (r *mutationResolver) CreateDepartment(ctx context.Context, input graph_mod
 }
 
 // UpdateEmployee is the resolver for the updateEmployee field.
-func (r *mutationResolver) UpdateEmployee(ctx context.Context, input graph_models.UpdateEmployeeInput) (*models.Employee, error) {
+func (r *mutationResolver) UpdateEmployee(ctx context.Context, input graph_models.UpdateEmployeeInput, pic *graphql.Upload) (*models.Employee, error) {
 	var employee models.Employee
 	deepCopy.Copy(&input).To(&employee)
+
+	if pic != nil {
+		err := WriteFile(pic.File, pic.Filename)
+		if err != nil {
+			return nil, err
+		}
+
+		employee.ImageName = &pic.Filename
+	}
 
 	if err := r.EmployeeRepository.Update(&employee); err != nil {
 		return nil, err
@@ -51,9 +79,18 @@ func (r *mutationResolver) UpdateEmployee(ctx context.Context, input graph_model
 }
 
 // UpdateDepartment is the resolver for the updateDepartment field.
-func (r *mutationResolver) UpdateDepartment(ctx context.Context, input graph_models.UpdateDepartmentInput) (*models.Department, error) {
+func (r *mutationResolver) UpdateDepartment(ctx context.Context, input graph_models.UpdateDepartmentInput, pic *graphql.Upload) (*models.Department, error) {
 	var department models.Department
 	deepCopy.Copy(&input).To(&department)
+
+	if pic != nil {
+		err := WriteFile(pic.File, pic.Filename)
+		if err != nil {
+			return nil, err
+		}
+
+		department.ImageName = &pic.Filename
+	}
 
 	if err := r.DepartmentRepository.Update(&department); err != nil {
 		return nil, err

@@ -47,6 +47,7 @@ type Employee {
   kebele: String
   houseNo: String
   departmentId: Int!
+  imageName: String
 }
 
 type EmployeeEdge {
@@ -59,10 +60,10 @@ type EmployeeConnection implements Connection {
   edges: [EmployeeEdge!]!
 }
 
-
 type Department {
   id: ID!
   name: String!
+  imageName: String
   employees: [Employee!]!
 }
 
@@ -71,7 +72,7 @@ type DepartmentEdge {
 }
 
 input CreateEmployeeInput {
- firstName: String!
+  firstName: String!
   lastName: String!
   gender: String!
   phoneNo: String!
@@ -134,11 +135,11 @@ type Query {
 }
 
 type Mutation {
-  createEmployee(input: CreateEmployeeInput!): Employee!
-  createDepartment(input: CreateDepartmentInput!): Department!
+  createEmployee(input: CreateEmployeeInput!, pic: Upload): Employee!
+  createDepartment(input: CreateDepartmentInput!, pic: Upload): Department!
 
-  updateEmployee(input: UpdateEmployeeInput!): Employee!
-  updateDepartment(input: UpdateDepartmentInput!): Department!
+  updateEmployee(input: UpdateEmployeeInput!, pic: Upload): Employee!
+  updateDepartment(input: UpdateDepartmentInput!, pic: Upload): Department!
 
   deleteEmployee(id: ID!): Employee!
   deleteDepartment(id: ID!): Department!

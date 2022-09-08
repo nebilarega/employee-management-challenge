@@ -7,5 +7,6 @@ type Department struct {
 	ID        int        `gorm:"primaryKey"`
 	Name      string     `json:"name" gorm:"unique"`
 	Employees []Employee `json:"employees"`
+	ImageName *string    `json:"imageName"`
 	Count     int        `json:"count"`
 }

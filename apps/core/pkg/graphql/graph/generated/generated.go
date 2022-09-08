@@ -49,6 +49,7 @@ type ComplexityRoot struct {
 	Department struct {
 		Employees func(childComplexity int) int
 		ID        func(childComplexity int) int
+		ImageName func(childComplexity int) int
 		Name      func(childComplexity int) int
 	}
 
@@ -72,6 +73,7 @@ type ComplexityRoot struct {
 		Gender       func(childComplexity int) int
 		HouseNo      func(childComplexity int) int
 		ID           func(childComplexity int) int
+		ImageName    func(childComplexity int) int
 		Kebele       func(childComplexity int) int
 		LastName     func(childComplexity int) int
 		PhoneNo      func(childComplexity int) int
@@ -97,12 +99,12 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateDepartment func(childComplexity int, input graph_models.CreateDepartmentInput) int
-		CreateEmployee   func(childComplexity int, input graph_models.CreateEmployeeInput) int
+		CreateDepartment func(childComplexity int, input graph_models.CreateDepartmentInput, pic *graphql.Upload) int
+		CreateEmployee   func(childComplexity int, input graph_models.CreateEmployeeInput, pic *graphql.Upload) int
 		DeleteDepartment func(childComplexity int, id int) int
 		DeleteEmployee   func(childComplexity int, id int) int
-		UpdateDepartment func(childComplexity int, input graph_models.UpdateDepartmentInput) int
-		UpdateEmployee   func(childComplexity int, input graph_models.UpdateEmployeeInput) int
+		UpdateDepartment func(childComplexity int, input graph_models.UpdateDepartmentInput, pic *graphql.Upload) int
+		UpdateEmployee   func(childComplexity int, input graph_models.UpdateEmployeeInput, pic *graphql.Upload) int
 	}
 
 	PageInfo struct {
@@ -120,10 +122,10 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreateEmployee(ctx context.Context, input graph_models.CreateEmployeeInput) (*models.Employee, error)
-	CreateDepartment(ctx context.Context, input graph_models.CreateDepartmentInput) (*models.Department, error)
-	UpdateEmployee(ctx context.Context, input graph_models.UpdateEmployeeInput) (*models.Employee, error)
-	UpdateDepartment(ctx context.Context, input graph_models.UpdateDepartmentInput) (*models.Department, error)
+	CreateEmployee(ctx context.Context, input graph_models.CreateEmployeeInput, pic *graphql.Upload) (*models.Employee, error)
+	CreateDepartment(ctx context.Context, input graph_models.CreateDepartmentInput, pic *graphql.Upload) (*models.Department, error)
+	UpdateEmployee(ctx context.Context, input graph_models.UpdateEmployeeInput, pic *graphql.Upload) (*models.Employee, error)
+	UpdateDepartment(ctx context.Context, input graph_models.UpdateDepartmentInput, pic *graphql.Upload) (*models.Department, error)
 	DeleteEmployee(ctx context.Context, id int) (*models.Employee, error)
 	DeleteDepartment(ctx context.Context, id int) (*models.Department, error)
 }
@@ -164,6 +166,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Department.ID(childComplexity), true
+
+	case "Department.imageName":
+		if e.complexity.Department.ImageName == nil {
+			break
+		}
+
+		return e.complexity.Department.ImageName(childComplexity), true
 
 	case "Department.name":
 		if e.complexity.Department.Name == nil {
@@ -262,6 +271,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Employee.ID(childComplexity), true
+
+	case "Employee.imageName":
+		if e.complexity.Employee.ImageName == nil {
+			break
+		}
+
+		return e.complexity.Employee.ImageName(childComplexity), true
 
 	case "Employee.kebele":
 		if e.complexity.Employee.Kebele == nil {
@@ -364,7 +380,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateDepartment(childComplexity, args["input"].(graph_models.CreateDepartmentInput)), true
+		return e.complexity.Mutation.CreateDepartment(childComplexity, args["input"].(graph_models.CreateDepartmentInput), args["pic"].(*graphql.Upload)), true
 
 	case "Mutation.createEmployee":
 		if e.complexity.Mutation.CreateEmployee == nil {
@@ -376,7 +392,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateEmployee(childComplexity, args["input"].(graph_models.CreateEmployeeInput)), true
+		return e.complexity.Mutation.CreateEmployee(childComplexity, args["input"].(graph_models.CreateEmployeeInput), args["pic"].(*graphql.Upload)), true
 
 	case "Mutation.deleteDepartment":
 		if e.complexity.Mutation.DeleteDepartment == nil {
@@ -412,7 +428,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateDepartment(childComplexity, args["input"].(graph_models.UpdateDepartmentInput)), true
+		return e.complexity.Mutation.UpdateDepartment(childComplexity, args["input"].(graph_models.UpdateDepartmentInput), args["pic"].(*graphql.Upload)), true
 
 	case "Mutation.updateEmployee":
 		if e.complexity.Mutation.UpdateEmployee == nil {
@@ -424,7 +440,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateEmployee(childComplexity, args["input"].(graph_models.UpdateEmployeeInput)), true
+		return e.complexity.Mutation.UpdateEmployee(childComplexity, args["input"].(graph_models.UpdateEmployeeInput), args["pic"].(*graphql.Upload)), true
 
 	case "PageInfo.totalPages":
 		if e.complexity.PageInfo.TotalPages == nil {
@@ -618,6 +634,7 @@ type Employee {
   kebele: String
   houseNo: String
   departmentId: Int!
+  imageName: String
 }
 
 type EmployeeEdge {
@@ -630,10 +647,10 @@ type EmployeeConnection implements Connection {
   edges: [EmployeeEdge!]!
 }
 
-
 type Department {
   id: ID!
   name: String!
+  imageName: String
   employees: [Employee!]!
 }
 
@@ -642,7 +659,7 @@ type DepartmentEdge {
 }
 
 input CreateEmployeeInput {
- firstName: String!
+  firstName: String!
   lastName: String!
   gender: String!
   phoneNo: String!
@@ -705,11 +722,11 @@ type Query {
 }
 
 type Mutation {
-  createEmployee(input: CreateEmployeeInput!): Employee!
-  createDepartment(input: CreateDepartmentInput!): Department!
+  createEmployee(input: CreateEmployeeInput!, pic: Upload): Employee!
+  createDepartment(input: CreateDepartmentInput!, pic: Upload): Department!
 
-  updateEmployee(input: UpdateEmployeeInput!): Employee!
-  updateDepartment(input: UpdateDepartmentInput!): Department!
+  updateEmployee(input: UpdateEmployeeInput!, pic: Upload): Employee!
+  updateDepartment(input: UpdateDepartmentInput!, pic: Upload): Department!
 
   deleteEmployee(id: ID!): Employee!
   deleteDepartment(id: ID!): Department!
@@ -734,6 +751,15 @@ func (ec *executionContext) field_Mutation_createDepartment_args(ctx context.Con
 		}
 	}
 	args["input"] = arg0
+	var arg1 *graphql.Upload
+	if tmp, ok := rawArgs["pic"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pic"))
+		arg1, err = ec.unmarshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pic"] = arg1
 	return args, nil
 }
 
@@ -749,6 +775,15 @@ func (ec *executionContext) field_Mutation_createEmployee_args(ctx context.Conte
 		}
 	}
 	args["input"] = arg0
+	var arg1 *graphql.Upload
+	if tmp, ok := rawArgs["pic"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pic"))
+		arg1, err = ec.unmarshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pic"] = arg1
 	return args, nil
 }
 
@@ -794,6 +829,15 @@ func (ec *executionContext) field_Mutation_updateDepartment_args(ctx context.Con
 		}
 	}
 	args["input"] = arg0
+	var arg1 *graphql.Upload
+	if tmp, ok := rawArgs["pic"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pic"))
+		arg1, err = ec.unmarshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pic"] = arg1
 	return args, nil
 }
 
@@ -809,6 +853,15 @@ func (ec *executionContext) field_Mutation_updateEmployee_args(ctx context.Conte
 		}
 	}
 	args["input"] = arg0
+	var arg1 *graphql.Upload
+	if tmp, ok := rawArgs["pic"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pic"))
+		arg1, err = ec.unmarshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pic"] = arg1
 	return args, nil
 }
 
@@ -1031,6 +1084,47 @@ func (ec *executionContext) fieldContext_Department_name(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _Department_imageName(ctx context.Context, field graphql.CollectedField, obj *models.Department) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Department_imageName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ImageName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Department_imageName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Department",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Department_employees(ctx context.Context, field graphql.CollectedField, obj *models.Department) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Department_employees(ctx, field)
 	if err != nil {
@@ -1102,6 +1196,8 @@ func (ec *executionContext) fieldContext_Department_employees(ctx context.Contex
 				return ec.fieldContext_Employee_houseNo(ctx, field)
 			case "departmentId":
 				return ec.fieldContext_Employee_departmentId(ctx, field)
+			case "imageName":
+				return ec.fieldContext_Employee_imageName(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Employee", field.Name)
 		},
@@ -1292,6 +1388,8 @@ func (ec *executionContext) fieldContext_DepartmentEdge_node(ctx context.Context
 				return ec.fieldContext_Department_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Department_name(ctx, field)
+			case "imageName":
+				return ec.fieldContext_Department_imageName(ctx, field)
 			case "employees":
 				return ec.fieldContext_Department_employees(ctx, field)
 			}
@@ -1984,6 +2082,47 @@ func (ec *executionContext) fieldContext_Employee_departmentId(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Employee_imageName(ctx context.Context, field graphql.CollectedField, obj *models.Employee) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Employee_imageName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ImageName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Employee_imageName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Employee",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _EmployeeConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *graph_models.EmployeeConnection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_EmployeeConnection_totalCount(ctx, field)
 	if err != nil {
@@ -2195,6 +2334,8 @@ func (ec *executionContext) fieldContext_EmployeeEdge_node(ctx context.Context, 
 				return ec.fieldContext_Employee_houseNo(ctx, field)
 			case "departmentId":
 				return ec.fieldContext_Employee_departmentId(ctx, field)
+			case "imageName":
+				return ec.fieldContext_Employee_imageName(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Employee", field.Name)
 		},
@@ -2304,7 +2445,7 @@ func (ec *executionContext) _Mutation_createEmployee(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateEmployee(rctx, fc.Args["input"].(graph_models.CreateEmployeeInput))
+		return ec.resolvers.Mutation().CreateEmployee(rctx, fc.Args["input"].(graph_models.CreateEmployeeInput), fc.Args["pic"].(*graphql.Upload))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2361,6 +2502,8 @@ func (ec *executionContext) fieldContext_Mutation_createEmployee(ctx context.Con
 				return ec.fieldContext_Employee_houseNo(ctx, field)
 			case "departmentId":
 				return ec.fieldContext_Employee_departmentId(ctx, field)
+			case "imageName":
+				return ec.fieldContext_Employee_imageName(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Employee", field.Name)
 		},
@@ -2393,7 +2536,7 @@ func (ec *executionContext) _Mutation_createDepartment(ctx context.Context, fiel
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateDepartment(rctx, fc.Args["input"].(graph_models.CreateDepartmentInput))
+		return ec.resolvers.Mutation().CreateDepartment(rctx, fc.Args["input"].(graph_models.CreateDepartmentInput), fc.Args["pic"].(*graphql.Upload))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2422,6 +2565,8 @@ func (ec *executionContext) fieldContext_Mutation_createDepartment(ctx context.C
 				return ec.fieldContext_Department_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Department_name(ctx, field)
+			case "imageName":
+				return ec.fieldContext_Department_imageName(ctx, field)
 			case "employees":
 				return ec.fieldContext_Department_employees(ctx, field)
 			}
@@ -2456,7 +2601,7 @@ func (ec *executionContext) _Mutation_updateEmployee(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateEmployee(rctx, fc.Args["input"].(graph_models.UpdateEmployeeInput))
+		return ec.resolvers.Mutation().UpdateEmployee(rctx, fc.Args["input"].(graph_models.UpdateEmployeeInput), fc.Args["pic"].(*graphql.Upload))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2513,6 +2658,8 @@ func (ec *executionContext) fieldContext_Mutation_updateEmployee(ctx context.Con
 				return ec.fieldContext_Employee_houseNo(ctx, field)
 			case "departmentId":
 				return ec.fieldContext_Employee_departmentId(ctx, field)
+			case "imageName":
+				return ec.fieldContext_Employee_imageName(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Employee", field.Name)
 		},
@@ -2545,7 +2692,7 @@ func (ec *executionContext) _Mutation_updateDepartment(ctx context.Context, fiel
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateDepartment(rctx, fc.Args["input"].(graph_models.UpdateDepartmentInput))
+		return ec.resolvers.Mutation().UpdateDepartment(rctx, fc.Args["input"].(graph_models.UpdateDepartmentInput), fc.Args["pic"].(*graphql.Upload))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2574,6 +2721,8 @@ func (ec *executionContext) fieldContext_Mutation_updateDepartment(ctx context.C
 				return ec.fieldContext_Department_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Department_name(ctx, field)
+			case "imageName":
+				return ec.fieldContext_Department_imageName(ctx, field)
 			case "employees":
 				return ec.fieldContext_Department_employees(ctx, field)
 			}
@@ -2665,6 +2814,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteEmployee(ctx context.Con
 				return ec.fieldContext_Employee_houseNo(ctx, field)
 			case "departmentId":
 				return ec.fieldContext_Employee_departmentId(ctx, field)
+			case "imageName":
+				return ec.fieldContext_Employee_imageName(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Employee", field.Name)
 		},
@@ -2726,6 +2877,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteDepartment(ctx context.C
 				return ec.fieldContext_Department_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Department_name(ctx, field)
+			case "imageName":
+				return ec.fieldContext_Department_imageName(ctx, field)
 			case "employees":
 				return ec.fieldContext_Department_employees(ctx, field)
 			}
@@ -2955,6 +3108,8 @@ func (ec *executionContext) fieldContext_Query_employee(ctx context.Context, fie
 				return ec.fieldContext_Employee_houseNo(ctx, field)
 			case "departmentId":
 				return ec.fieldContext_Employee_departmentId(ctx, field)
+			case "imageName":
+				return ec.fieldContext_Employee_imageName(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Employee", field.Name)
 		},
@@ -3079,6 +3234,8 @@ func (ec *executionContext) fieldContext_Query_department(ctx context.Context, f
 				return ec.fieldContext_Department_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Department_name(ctx, field)
+			case "imageName":
+				return ec.fieldContext_Department_imageName(ctx, field)
 			case "employees":
 				return ec.fieldContext_Department_employees(ctx, field)
 			}
@@ -5543,6 +5700,10 @@ func (ec *executionContext) _Department(ctx context.Context, sel ast.SelectionSe
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "imageName":
+
+			out.Values[i] = ec._Department_imageName(ctx, field, obj)
+
 		case "employees":
 
 			out.Values[i] = ec._Department_employees(ctx, field, obj)
@@ -5732,6 +5893,10 @@ func (ec *executionContext) _Employee(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "imageName":
+
+			out.Values[i] = ec._Employee_imageName(ctx, field, obj)
+
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7128,6 +7293,22 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 		return graphql.Null
 	}
 	res := graphql.MarshalString(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx context.Context, v interface{}) (*graphql.Upload, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalUpload(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx context.Context, sel ast.SelectionSet, v *graphql.Upload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalUpload(*v)
 	return res
 }
 
