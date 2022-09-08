@@ -1,0 +1,145 @@
+scalar Time
+scalar Upload
+
+type PageInfo {
+  totalPages: Int!
+}
+
+interface Connection {
+  totalCount: Int!
+  pageInfo: PageInfo!
+}
+
+input PaginationInput {
+  page: Int!
+  size: Int!
+}
+
+enum OrderDirection {
+  asc
+  desc
+}
+
+input FileUpload {
+  file: Upload!
+  name: String!
+}
+
+type HealthCheckReport {
+  health: String!
+  db: Boolean!
+}
+
+type Employee {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  gender: String!
+  phoneNo: String!
+  email: String!
+  dateOfBirth: Time!
+  country: String!
+  region: String
+  city: String
+  subCity: String
+  woreda: String
+  zone: String
+  kebele: String
+  houseNo: String
+  departmentId: Int!
+}
+
+type EmployeeEdge {
+  node: Employee!
+}
+
+type EmployeeConnection implements Connection {
+  totalCount: Int!
+  pageInfo: PageInfo!
+  edges: [EmployeeEdge!]!
+}
+
+
+type Department {
+  id: ID!
+  name: String!
+  employees: [Employee!]!
+}
+
+type DepartmentEdge {
+  node: Department!
+}
+
+input CreateEmployeeInput {
+ firstName: String!
+  lastName: String!
+  gender: String!
+  phoneNo: String!
+  email: String!
+  dateOfBirth: Time!
+  country: String!
+  region: String
+  city: String
+  subCity: String
+  woreda: String
+  zone: String
+  kebele: String
+  houseNo: String
+  departmentId: Int!
+}
+
+input CreateDepartmentInput {
+  name: String!
+}
+
+input UpdateEmployeeInput {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  gender: String!
+  phoneNo: String!
+  email: String!
+  dateOfBirth: Time!
+  country: String!
+  region: String
+  city: String
+  subCity: String
+  woreda: String
+  zone: String
+  kebele: String
+  houseNo: String
+  departmentId: Int!
+}
+
+input UpdateDepartmentInput {
+  id: ID!
+  name: String!
+}
+
+type DepartmentConnection implements Connection {
+  totalCount: Int!
+  pageInfo: PageInfo!
+  edges: [DepartmentEdge!]!
+}
+
+type Query {
+  getHealthCheck: HealthCheckReport!
+  currentDateTime: Time!
+
+  employee(id: ID!): Employee!
+  employees(searchTerm: String, page: PaginationInput!): EmployeeConnection!
+
+  department(id: ID!): Department!
+  departments(searchTerm: String, page: PaginationInput!): DepartmentConnection!
+}
+
+type Mutation {
+  createEmployee(input: CreateEmployeeInput!): Employee!
+  createDepartment(input: CreateDepartmentInput!): Department!
+
+  updateEmployee(input: UpdateEmployeeInput!): Employee!
+  updateDepartment(input: UpdateDepartmentInput!): Department!
+
+  deleteEmployee(id: ID!): Employee!
+  deleteDepartment(id: ID!): Department!
+}
