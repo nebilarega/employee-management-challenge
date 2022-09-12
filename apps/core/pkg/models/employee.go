@@ -24,6 +24,6 @@ type Employee struct {
 	Kebele       string    `json:"kebele"`
 	HouseNo      string    `json:"houseNo"`
 	DepartmentID int       `json:"departmentId"`
-	ImageName    *string    `json:"imageName"`
+	ImageName    *string   `json:"imageName"`
 	Count        int       `json:"count"`
 }
