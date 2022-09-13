@@ -61,17 +61,10 @@ const Dashboard = () => {
     houseNo: '',
     departmentId: 0,
   };
-  const employees_vals: Employee[] = };
+
   const { data } = useQuery(GET_EMPLOYEES);
   const [deleteEmployee, { error }] = useMutation(DELETE_EMPLOYEE);
-  if (data){
-    data.employees.array.forEach(element => {
-      employees_vals.push(element);
-    });
-  }
-  else{
-    
-  }
+
   const [employees, setEmployees] = useState<Employee[]>([emptyEmployee]);
   const [selectedEmployee, setSelectedEmployee] =
     useState<Employee>(emptyEmployee);
