@@ -9,10 +9,16 @@
   },
   "private": true,
   "dependencies": {
+    "@apollo/client": "^3.6.9",
+    "@restart/ui": "^1.4.0",
     "core-js": "^3.6.5",
+    "graphql": "^16.6.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-icons": "^4.4.0",
+    "reactstrap": "^9.1.4",
     "regenerator-runtime": "0.13.7",
+    "sweetalert2": "^11.4.32",
     "tslib": "^2.3.0"
   },
   "devDependencies": {

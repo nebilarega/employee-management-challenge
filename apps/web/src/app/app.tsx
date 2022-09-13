@@ -1,12 +1,18 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import styles from './app.module.css';
-import NxWelcome from './nx-welcome';
-
+import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import Dashboard from '../components/Dashboard';
 export function App() {
+  const client = new ApolloClient({
+    uri: ' http://localhost:8080/query',
+    cache: new InMemoryCache(),
+  });
+
   return (
     <>
-      <NxWelcome title="web" />
-      <div />
+      <ApolloProvider client={client}>
+        <Dashboard />
+      </ApolloProvider>
+      <div></div>
     </>
   );
 }
