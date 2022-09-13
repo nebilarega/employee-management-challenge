@@ -89,15 +89,15 @@ const AddEmployee: React.FC<Employees> = ({ employees, setIsAdding }) => {
       variables: {
         ...newEmployee,
       },
-    });
-    setIsAdding(false);
-
-    Swal.fire({
-      icon: 'success',
-      title: 'Added!',
-      text: `${firstName} ${lastName}'s data has been Added.`,
-      showConfirmButton: false,
-      timer: 1500,
+    }).then((value) => {
+      Swal.fire({
+        icon: 'success',
+        title: 'Added!',
+        text: `${firstName} ${lastName}'s data has been Added.`,
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      setIsAdding(false);
     });
   };
   // max-width: 1200px;

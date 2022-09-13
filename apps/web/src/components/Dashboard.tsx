@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
+import { useMutation, useQuery } from '@apollo/client';
+import { GET_EMPLOYEES } from '../graphql/Queries';
 
 import Header from './Header';
 import AddEmployee from './AddEmployee';
 import UpdateEmployee from './UpdateEmployee';
 import ListEmployee from './ListEmployee';
+import { DELETE_EMPLOYEE } from '../graphql/Mutations';
 
 // $firstName: String!;
 // $lastName: String!;
@@ -58,6 +61,17 @@ const Dashboard = () => {
     houseNo: '',
     departmentId: 0,
   };
+  const employees_vals: Employee[] = };
+  const { data } = useQuery(GET_EMPLOYEES);
+  const [deleteEmployee, { error }] = useMutation(DELETE_EMPLOYEE);
+  if (data){
+    data.employees.array.forEach(element => {
+      employees_vals.push(element);
+    });
+  }
+  else{
+    
+  }
   const [employees, setEmployees] = useState<Employee[]>([emptyEmployee]);
   const [selectedEmployee, setSelectedEmployee] =
     useState<Employee>(emptyEmployee);
