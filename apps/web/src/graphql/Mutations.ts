@@ -16,23 +16,6 @@ import { gql } from '@apollo/client';
 // houseNo: String;
 // departmentId: Int!;
 
-// id: ID!;
-// firstName: String!;
-// lastName: String!;
-// gender: String!;
-// phoneNo: String!;
-// email: String!;
-// dateOfBirth: Time!;
-// country: String!;
-// region: String;
-// city: String;
-// subCity: String;
-// woreda: String;
-// zone: String;
-// kebele: String;
-// houseNo: String;
-// departmentId: Int!;
-
 export const CREATE_EMPLOYEE = gql`
   mutation createEmployee(
     $firstName: String!

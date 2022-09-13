@@ -1,5 +1,7 @@
 import React, { useState, useRef } from 'react';
 import Swal from 'sweetalert2';
+import { CREATE_EMPLOYEE } from '../graphql/Mutations';
+import { useMutation } from '@apollo/client';
 interface Employee {
   id: number;
   firstName: string;
@@ -44,6 +46,7 @@ const AddEmployee: React.FC<Employees> = ({ employees, setIsAdding }) => {
   //   useEffect(() => {
   //     if (textInput != null) textInput.current.focus();
   //   }, []);
+  const [createEmployee, { error }] = useMutation(CREATE_EMPLOYEE);
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,7 +85,11 @@ const AddEmployee: React.FC<Employees> = ({ employees, setIsAdding }) => {
       departmentId,
     };
     employees.push(newEmployee);
-    // setEmployees(employees);
+    createEmployee({
+      variables: {
+        ...newEmployee,
+      },
+    });
     setIsAdding(false);
 
     Swal.fire({

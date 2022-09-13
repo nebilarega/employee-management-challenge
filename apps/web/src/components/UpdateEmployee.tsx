@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Swal from 'sweetalert2';
-
+import { UPDATE_EMPLOYEE } from '../graphql/Mutations';
+import { useMutation } from '@apollo/client';
 interface Employee {
   id: number;
   firstName: string;
@@ -50,7 +51,7 @@ const UpdateEmployee: React.FC<Employees> = ({
   const [departmentId, setDepartmentId] = useState(
     selectedEmployee.departmentId
   );
-
+  const [updateEmployee, { error }] = useMutation(UPDATE_EMPLOYEE);
   const handleUpdate = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -98,6 +99,11 @@ const UpdateEmployee: React.FC<Employees> = ({
     }
 
     setEmployees(employees);
+    updateEmployee({
+      variables: {
+        ...selectedEmployee,
+      },
+    });
     setIsEditing(false);
 
     Swal.fire({
